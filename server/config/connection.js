@@ -1,12 +1,19 @@
-import mongoose from "mongoose";
+import { Pool } from 'pg';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const connect = async() => {
-    try {
-        await mongoose.connect('mongodb://localhost:27017');
-        console.log('Connected to Database successfully.');
-    } catch(error){
-        console.error("Error connecting to Database.");
-    }
-}
+const {
+POSTGRES_HOST,
+POSTGRES_DB,
+POSTGRES_USER,
+POSTGRES_PASSWORD
+} = process.env;
 
-export default connect;
+const Client = new Pool({
+    host: POSTGRES_HOST,
+    database: POSTGRES_DB,
+    user: POSTGRES_USER,
+    password: POSTGRES_PASSWORD
+});
+
+export default Client;
