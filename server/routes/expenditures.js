@@ -1,6 +1,6 @@
 import express from 'express';
-import authorizeRoles from '../utils/authorizeRoles.js';
-import verifyToken from '../utils/verifyToken.js';
+import authorizeRoles from '../middlewares/authorizeRoles.js';
+import verifyToken from '../middlewares/verifyToken.js';
 import asyncErrorHandler from '../utils/asyncErrorHandler.js';
 import Client from '../config/connection.js';
 const router = express.Router();
@@ -21,5 +21,11 @@ router.post('/', asyncErrorHandler(async(req, res, next)=>{
         `INSERT INTO expenditures (base_id, asset_type, quantity, reason, expenditure_date, created_by) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
         [base_id, asset_type, quantity, reason, expenditure_date, user_id]
     )
+    if(response.rowCount > 0){
+        const audit_update = await Client.query(
+            `INSERT INTO audit_log (action_type, user_id, asset_type, details) VALUES ($1, $2, $3, $4) RETURNING *`,
+            ['expenditure', req.user.user_id, asset_type, JSON.stringify(response.rows[0])]
+        );
+    }
     res.status(201).json(response.rows[0]);
 }))

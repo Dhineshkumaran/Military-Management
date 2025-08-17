@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
-import asyncErrorHandler from './asyncErrorHandler.js';
-import CustomError from './customError.js';
+import asyncErrorHandler from '../utils/asyncErrorHandler.js';
+import CustomError from '../utils/customError.js';
 import Client from '../config/connection.js';
 
 const verifyToken = asyncErrorHandler(async(req, res, next) => {

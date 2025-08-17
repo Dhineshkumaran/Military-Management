@@ -15,7 +15,7 @@ router.post('/', asyncErrorHandler(async(req, res, next) => {
     if(response.rowCount == 1){
         const audit_update = await Client.query(
             `INSERT INTO audit_log (action_type, user_id, details) VALUES ($1, $2, $3) RETURNING *`,
-            ['NEW_USER', response.rows[0].user_id, JSON.stringify(response.rows[0])]
+            ['NEW_USER', req.user.user_id, JSON.stringify(response.rows[0])]
         );
     }
 

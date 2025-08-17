@@ -1,4 +1,4 @@
-import CustomError from "./customError.js";
+import CustomError from "../utils/customError.js";
 
 const authorizeRoles = (...roles) => {
     return (req, res, next) => {
