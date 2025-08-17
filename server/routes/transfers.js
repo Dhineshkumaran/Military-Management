@@ -29,3 +29,5 @@ router.post('/', asyncErrorHandler(async(req, res, next)=>{
     }
     res.status(201).json(response.rows[0]);
 }))
+
+export default router;
