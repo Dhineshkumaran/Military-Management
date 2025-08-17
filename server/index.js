@@ -6,6 +6,7 @@ dotenv.config();
 
 import signupRoutes from './routes/users.js';
 import loginRoutes from './routes/login.js';
+import dashboardRoutes from './routes/dashboard.js';
 
 const app = express();
 app.use(express.json());
@@ -17,6 +18,7 @@ app.use(cors({
 
 app.use('/signup', signupRoutes);
 app.use('/login', loginRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 app.use((error, req, res, next) => {
     console.error(error.stack);
