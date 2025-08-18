@@ -5,7 +5,7 @@ import asyncErrorHandler from '../utils/asyncErrorHandler.js';
 import Client from '../config/connection.js';
 const router = express.Router();
 
-router.get('/', asyncErrorHandler(async(req, res, next) => {
+router.get('/summary', asyncErrorHandler(async(req, res, next) => {
     const {base_id, asset_type, start_date, end_date} = req.query;
     const response = await Client.query(
         `WITH
@@ -70,8 +70,45 @@ router.get('/', asyncErrorHandler(async(req, res, next) => {
         FROM p, t, e, a;`,
         [base_id, asset_type, start_date, end_date]
     );
-    console.log(response.rows[0]);
     res.json(response.rows[0]);
+})
+);
+
+router.get('/recent-purchases', asyncErrorHandler(async(req, res, next) => {
+    const {base_id} = req.query;
+    const response = await Client.query(
+        `SELECT
+            asset_type, (SELECT base_name FROM bases WHERE base_id = $1) AS base_name,
+            SUM(quantity) AS total_quantity,
+            MAX(purchase_date) AS latest_purchase
+        FROM purchases
+        WHERE base_id = $1
+        GROUP BY asset_type
+        ORDER BY latest_purchase DESC
+        LIMIT 5`,
+        [base_id]
+    );
+    res.json(response.rows);
+})
+);
+
+router.get('/recent-transfers', asyncErrorHandler(async(req, res, next) => {
+    const {base_id} = req.query;
+    const response = await Client.query(
+        `SELECT
+            asset_type,
+            SUM(quantity) AS total_quantity,
+            (SELECT base_name FROM bases WHERE base_id = $1) AS from_base_name,
+            (SELECT base_name FROM bases WHERE base_id = to_base_id) AS to_base_name,
+            MAX(transfer_date) AS latest_transfer
+        FROM transfers
+        WHERE from_base_id = $1
+        GROUP BY asset_type, to_base_id
+        ORDER BY latest_transfer DESC
+        LIMIT 5`,
+        [base_id]
+    );
+    res.json(response.rows);
 })
 );
 

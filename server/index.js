@@ -27,6 +27,8 @@ app.use('/assignments', assignmentRoutes);
 app.use('/expenditures', expenditureRoutes);
 app.use('/purchases', purchaseRoutes);
 app.use('/transfers', transferRoutes);
+app.use('/transfers-in', transferRoutes);
+app.use('/transfers-out', transferRoutes);
 
 app.use((error, req, res, next) => {
     console.error(error.stack);
