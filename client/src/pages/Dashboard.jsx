@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import NetMovementModal from './NetMovementModal';
+import { getBases, getEquipmentTypes, getRecentTransfers, getSummary, getRecentPurchases } from '../api/dashboard';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -10,7 +11,6 @@ import {
   X,
   ShoppingCart
 } from 'lucide-react';
-
 const Dashboard = () => {
 
     const [summary, setSummary] = useState({
@@ -24,43 +24,43 @@ const Dashboard = () => {
     });
     const [recentPurchases, setRecentPurchases] = useState([]);
     const [recentTransfers, setRecentTransfers] = useState([]);
+    const [bases, setBases] = useState([]);
+    const [equipmentTypes, setEquipmentTypes] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-        useEffect(() => {
+    const [filters, setFilters] = useState({
+      startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+      endDate: new Date().toISOString().split('T')[0],
+      baseId: 0,
+      equipmentType: ''
+    });
+
+    useEffect(() => {
       const fetchData = async () => {
-        try {
-          const response = await fetch('http://localhost:3000/dashboard/summary?base_id=1&asset_type=rifle&start_date=2025-01-01&end_date=2025-12-30');
-          const data = await response.json();
-          
-          setSummary(data);
-        } catch (error) {
-            console.error('Error fetching summary:', error);
-        }
-        try {
-            const response = await fetch('http://localhost:3000/dashboard/recent-purchases?base_id=1');
-            const data = await response.json();
-            setRecentPurchases(data);
-        } catch (error) {
-            console.error('Error fetching recent purchases:', error);
-        }
-        try {
-            const response = await fetch('http://localhost:3000/dashboard/recent-transfers?base_id=1');
-            const data = await response.json();
-            console.log(data);
-          setRecentTransfers(data);
-        } catch (error) {
-          console.error('Error fetching recent transfers:', error);
-        }
-      };
-    
-      fetchData();
-    }, []);
+        setLoading(true);
 
-  const [filters, setFilters] = useState({
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
-    baseId: '',
-    equipmentType: '',
-  });
+        const summary = await getSummary(filters.baseId, filters.equipmentType, filters.startDate, filters.endDate);
+        setSummary(summary);
+
+        const recentTransfers = await getRecentTransfers(filters.baseId, filters.equipmentType, filters.startDate, filters.endDate);
+        setRecentTransfers(recentTransfers);
+
+        const recentPurchases = await getRecentPurchases(filters.baseId);
+        setRecentPurchases(recentPurchases);
+
+        const bases = await getBases();
+        setBases(bases);
+
+        const equipmentTypes = await getEquipmentTypes();
+        setEquipmentTypes(equipmentTypes);
+
+        setLoading(false);
+      };
+
+
+      fetchData();
+    }, [filters]);
+
   const [showNetMovementModal, setShowNetMovementModal] = useState(false);
 
   const handleFilterChange = (key, value) => {
@@ -122,7 +122,10 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 p-6 bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen">
+    loading
+    ? (<p>Loading!</p>) 
+    :
+    (<div className="space-y-6 p-6 bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
@@ -164,10 +167,11 @@ const Dashboard = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
             >
               <option value="">All Bases</option>
-              <option value="1">Fort Bragg</option>
-              <option value="2">Camp Pendleton</option>
-              <option value="3">Fort Hood</option>
-              <option value="4">Fort Benning</option>
+              {
+                bases.map((base)=>(
+                  <option value={base.base_id}>{base.base_name}</option>
+                ))
+              }
             </select>
           </div>
           <div>
@@ -178,12 +182,11 @@ const Dashboard = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
             >
               <option value="">All Types</option>
-              <option value="weapon">Weapon</option>
-              <option value="vehicle">Vehicle</option>
-              <option value="ammunition">Ammunition</option>
-              <option value="communication">Communication</option>
-              <option value="medical">Medical</option>
-              <option value="other">Other</option>
+              {
+                equipmentTypes.map((equipment)=>(
+                  <option value={equipment}>{equipment}</option>
+                ))
+              }
             </select>
           </div>
         </div>
@@ -283,7 +286,7 @@ const Dashboard = () => {
         />
       )}
     </div>
-  );
-};
+  ));
+}
 
 export default Dashboard;

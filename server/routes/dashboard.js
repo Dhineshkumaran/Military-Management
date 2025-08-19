@@ -112,4 +112,20 @@ router.get('/recent-transfers', asyncErrorHandler(async(req, res, next) => {
 })
 );
 
+router.get('/bases', asyncErrorHandler(async(req, res, next) => {
+    const response = await Client.query(
+        `SELECT * FROM bases`
+    );
+    res.json(response.rows);
+})
+);
+
+router.get('/equipment-types', asyncErrorHandler(async(req, res, next) => {
+    const response = await Client.query(
+        `SELECT ARRAY_AGG(DISTINCT asset_type) AS asset_types FROM assets`
+    );
+    res.json(response.rows[0].asset_types);
+})
+);
+
 export default router;

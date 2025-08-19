@@ -8,7 +8,16 @@ const router = express.Router();
 router.get('/', asyncErrorHandler(async(req, res, next)=>{
     const {base_id, start_date, end_date, asset_type} = req.query;
     const response = await Client.query(
-        `SELECT * FROM purchases WHERE base_id=$1 AND purchase_date BETWEEN $2 AND $3 AND asset_type=$4`,
+        `SELECT 
+    p.asset_type, 
+    p.quantity, p.base_id,
+    (SELECT b.base_name FROM bases b WHERE b.base_id = p.base_id LIMIT 1) AS base_name, 
+    p.purchase_date, 
+    (SELECT u.username FROM users u WHERE u.user_id = p.created_by LIMIT 1) AS created_by_name 
+  FROM purchases p
+  WHERE p.base_id = $1 
+    AND p.purchase_date BETWEEN $2 AND $3 
+    AND p.asset_type = $4`,
         [base_id, start_date, end_date, asset_type]
     )
     res.status(200).json(response.rows);
