@@ -6,10 +6,8 @@ import Client from '../config/connection.js';
 const router = express.Router();
 
 router.get('/history', asyncErrorHandler(async(req, res, next)=>{
-    const {base_id} = req.query;
     const response = await Client.query(
-        `SELECT * FROM transfers WHERE base_id=$1`,
-        [base_id]
+        `SELECT *, (SELECT base_name FROM bases WHERE base_id = t.from_base_id) AS from_base_name, (SELECT base_name FROM bases WHERE base_id = to_base_id) AS to_base_name, (SELECT username FROM users u WHERE u.user_id=t.created_by) AS created_by_name FROM transfers t`,
     )
     res.status(200).json(response.rows);
 }))

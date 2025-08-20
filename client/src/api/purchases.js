@@ -1,6 +1,7 @@
 const getPurchases = async(filters) =>{
     try {
-        const response = await fetch(`http://localhost:3000/purchases?base_id=${filters.base_id}&start_date=${filters.start_date}&end_date=${filters.end_date}&asset_type=${filters.asset_type}&search=${filters.search}`);
+        // ?base_id=${filters.base_id}&start_date=${filters.start_date}&end_date=${filters.end_date}&asset_type=${filters.asset_type}&search=${filters.search}
+        const response = await fetch(`http://localhost:3000/purchases`);
         const data = await response.json();
         return data;
     } catch (error) {
