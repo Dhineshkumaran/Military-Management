@@ -2,23 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
-  Filter, 
   Calendar,
   Package,
-  DollarSign,
   User,
   Building2,
   CheckCircle,
   AlertCircle,
-  X
+  X,
+  UserCheck
 } from 'lucide-react';
 
 import { getBases, getEquipmentTypes } from '../api/dashboard';
-import {getPurchases, createPurchase} from '../api/purchases';
+import { getAssignments, createAssignment } from '../api/assignments';
 
-const Purchases = () => {
-  const [purchases, setPurchases] = useState([]);
-  const [filteredPurchases, setFilteredPurchases] = useState([]);
+const Assignments = () => {
+  const [assignments, setAssignments] = useState([]);
+  const [filteredAssignments, setFilteredAssignments] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -26,20 +25,23 @@ const Purchases = () => {
   const [assetTypes, setAssetTypes] = useState([]);
 
   const [formData, setFormData] = useState({
+    base_id: '',
     asset_type: '',
     quantity: '',
-    date: new Date().toISOString().split('T')[0]
+    assigned_to: '',
+    assignment_date: new Date().toISOString().split('T')[0]
   });
 
   const [filters, setFilters] = useState({
-    base_id: 0,
+    base_id: '',
     start_date: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
     end_date: new Date().toISOString().split('T')[0],
     asset_type: '',
+    assigned_to: '',
     search: ''
   });
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchData = async () => {
       const bases = await getBases();
       setBases(bases);
@@ -48,44 +50,44 @@ const Purchases = () => {
     };
 
     fetchData();
-  },[])
+  }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchData = async () => {
-      const purchases = await getPurchases(filters);
-      setPurchases(purchases);
-      console.log(purchases);
-
+      const assignments = await getAssignments(filters);
+      setAssignments(assignments);
     };
 
     fetchData();
-  },[filters])
+  }, [filters]);
 
   useEffect(() => {
-    let filtered = purchases;
+    let filtered = assignments;
 
     if (filters.base_id) {
-      filtered = filtered.filter(p => p.base_id == filters.base_id);
+      filtered = filtered.filter(a => a.base_id == filters.base_id);
     }
     if (filters.asset_type) {
-      filtered = filtered.filter(p => p.asset_type == filters.asset_type);
+      filtered = filtered.filter(a => a.asset_type == filters.asset_type);
+    }
+    if (filters.assigned_to) {
+      filtered = filtered.filter(a => a.assigned_to.toLowerCase().includes(filters.assigned_to.toLowerCase()));
     }
     if (filters.start_date) {
-      filtered = filtered.filter(p => p.purchase_date >= filters.start_date);
+      filtered = filtered.filter(a => a.assignment_date >= filters.start_date);
     }
     if (filters.end_date) {
-      filtered = filtered.filter(p => p.purchase_date <= filters.end_date);
+      filtered = filtered.filter(a => a.assignment_date <= filters.end_date);
     }
     if (filters.search) {
-      filtered = filtered.filter(p => 
-        p.base_name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        p.asset_type.toLowerCase().includes(filters.search.toLowerCase()) ||
-        p.created_by_name.toLowerCase().includes(filters.search.toLowerCase())
+      filtered = filtered.filter(a => 
+        a.assigned_to.toLowerCase().includes(filters.search.toLowerCase()) ||
+        a.asset_type.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
 
-    setFilteredPurchases(filtered);
-  }, [filters, purchases]);
+    setFilteredAssignments(filtered);
+  }, [filters, assignments]);
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -104,10 +106,11 @@ const Purchases = () => {
 
   const clearFilters = () => {
     setFilters({
-      base_id: '',
+      base_id: 0,
       start_date: '',
       end_date: '',
       asset_type: '',
+      assigned_to: '',
       search: ''
     });
   };
@@ -115,7 +118,7 @@ const Purchases = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.asset_type || !formData.quantity || !formData.date) {
+    if (!formData.base_id || !formData.asset_type || !formData.quantity || !formData.assigned_to || !formData.assignment_date) {
       setMessage({ type: 'error', text: 'Please fill in all required fields' });
       return;
     }
@@ -129,20 +132,22 @@ const Purchases = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const newPurchase = await createPurchase(formData);
-      setPurchases(prev => [newPurchase, ...prev]);
+      const newAssignment = await createAssignment(formData);
+      setAssignments(prev => [newAssignment, ...prev]);
       setFormData({
+        base_id: 0,
         asset_type: '',
         quantity: '',
-        date: new Date().toISOString().split('T')[0]
+        assigned_to: '',
+        assignment_date: new Date().toISOString().split('T')[0]
       });
       setShowForm(false);
-      setMessage({ type: 'success', text: 'Purchase recorded successfully!' });
+      setMessage({ type: 'success', text: 'Asset assigned successfully!' });
       
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to record purchase' });
+      setMessage({ type: 'error', text: 'Failed to assign asset' });
     } finally {
       setIsLoading(false);
     }
@@ -152,8 +157,8 @@ const Purchases = () => {
     <div className="space-y-6 p-6 min-h-screen">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Purchases</h1>
-          <p className="text-gray-600">Manage asset purchases and procurement</p>
+          <h1 className="text-3xl font-bold text-gray-800">Asset Assignments</h1>
+          <p className="text-gray-600">Manage asset assignments to personnel</p>
         </div>
         <div className="mt-4 sm:mt-0">
           <button 
@@ -161,7 +166,7 @@ const Purchases = () => {
             className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:shadow-md transform hover:scale-[1.02] transition-all duration-300 flex items-center"
           >
             <Plus className="h-5 w-5 mr-2" />
-            New Purchase
+            New Assignment
           </button>
         </div>
       </div>
@@ -170,15 +175,15 @@ const Purchases = () => {
         <div className={`flex items-center p-4 rounded-lg ${
           message.type === 'error' 
             ? 'bg-red-50 border border-red-200' 
-            : 'bg-blue-50 border border-blue-200'
+            : 'bg-green-50 border border-green-200'
         }`}>
           {message.type === 'error' ? (
             <AlertCircle className="h-5 w-5 text-red-500 mr-3" />
           ) : (
-            <CheckCircle className="h-5 w-5 text-blue-600 mr-3" />
+            <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
           )}
           <span className={`text-sm font-medium ${
-            message.type === 'error' ? 'text-red-700' : 'text-blue-700'
+            message.type === 'error' ? 'text-red-700' : 'text-green-700'
           }`}>
             {message.text}
           </span>
@@ -193,8 +198,28 @@ const Purchases = () => {
 
       {showForm && (
         <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Record New Purchase</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Create New Assignment</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Base <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="base_id"
+                value={formData.base_id}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
+                required
+              >
+                <option value="">Select Base</option>
+                {bases.map(base => (
+                  <option key={base.base_id} value={base.base_id}>
+                    {base.base_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Asset Type <span className="text-red-500">*</span>
@@ -203,12 +228,12 @@ const Purchases = () => {
                 name="asset_type"
                 value={formData.asset_type}
                 onChange={handleFormChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
                 required
               >
                 <option value="">Select Asset Type</option>
                 {assetTypes.map(type => (
-                  <option value={type}>
+                  <option key={type} value={type}>
                     {type}
                   </option>
                 ))}
@@ -225,23 +250,38 @@ const Purchases = () => {
                 value={formData.quantity}
                 onChange={handleFormChange}
                 min="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
                 placeholder="Enter quantity"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Assigned To <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="assigned_to"
+                value={formData.assigned_to}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
+                placeholder="Personnel name"
                 required
               />
             </div>
             
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Purchase Date <span className="text-red-500">*</span>
+                Assignment Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
-                name="date"
-                value={formData.date}
+                name="assignment_date"
+                value={formData.assignment_date}
                 onChange={handleFormChange}
                 max={new Date().toISOString().split('T')[0]}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
                 required
               />
             </div>
@@ -258,15 +298,15 @@ const Purchases = () => {
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2 px-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-2 px-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Recording...
+                  Assigning...
                 </div>
               ) : (
-                'Record Purchase'
+                'Create Assignment'
               )}
             </button>
           </div>
@@ -284,17 +324,17 @@ const Purchases = () => {
           </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search purchases..."
+                placeholder="Search assignments..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
               />
             </div>
           </div>
@@ -304,7 +344,7 @@ const Purchases = () => {
             <select
               value={filters.base_id}
               onChange={(e) => handleFilterChange('base_id', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
             >
               <option value="">All Bases</option>
               {bases.map(base => (
@@ -318,13 +358,24 @@ const Purchases = () => {
             <select
               value={filters.asset_type}
               onChange={(e) => handleFilterChange('asset_type', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
             >
               <option value="">All Types</option>
               {assetTypes.map(type => (
-                <option value={type}>{type}</option>
+                <option key={type} value={type}>{type}</option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+            <input
+              type="text"
+              placeholder="Personnel name"
+              value={filters.assigned_to}
+              onChange={(e) => handleFilterChange('assigned_to', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
+            />
           </div>
           
           <div>
@@ -333,7 +384,7 @@ const Purchases = () => {
               type="date"
               value={filters.start_date}
               onChange={(e) => handleFilterChange('start_date', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
             />
           </div>
           
@@ -343,7 +394,7 @@ const Purchases = () => {
               type="date"
               value={filters.end_date}
               onChange={(e) => handleFilterChange('end_date', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white"
             />
           </div>
         </div>
@@ -351,9 +402,9 @@ const Purchases = () => {
 
       <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800">Purchase History</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Assignment History</h3>
           <p className="text-sm text-gray-600">
-            Showing {filteredPurchases.length} of {purchases.length} purchases
+            Showing {filteredAssignments.length} of {assignments.length} assignments
           </p>
         </div>
         
@@ -368,51 +419,53 @@ const Purchases = () => {
                   Quantity
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Base
+                  Assigned To
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Purchase Date
+                  Assignment Date
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created By
+                  Base ID
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPurchases.length > 0 ? (
-                filteredPurchases.map((purchase) => (
-                  <tr key={purchase.id} className="hover:bg-gray-50">
+              {filteredAssignments.length > 0 ? (
+                filteredAssignments.map((assignment) => (
+                  <tr key={assignment.assignment_id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <Package className="h-4 w-4 text-gray-400 mr-2" />
                         <span className="text-sm text-gray-900 font-semibold">
-                          {purchase.asset_type}
+                          {assignment.asset_type}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-900 font-semibold">
-                        {purchase.quantity.toLocaleString()}
+                        {assignment.quantity.toLocaleString()}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <Building2 className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">{purchase.base_name}</span>
+                        <UserCheck className="h-4 w-4 text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-900 font-semibold">
+                          {assignment.assigned_to}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 text-gray-400 mr-2" />
                         <span className="text-sm text-gray-900">
-                          {new Date(purchase.purchase_date).toLocaleDateString()}
+                          {new Date(assignment.assignment_date).toLocaleDateString()}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <User className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">{purchase.created_by_name}</span>
+                        <Building2 className="h-4 w-4 text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-900">{assignment.base_id}</span>
                       </div>
                     </td>
                   </tr>
@@ -420,9 +473,9 @@ const Purchases = () => {
               ) : (
                 <tr>
                   <td colSpan="5" className="px-6 py-12 text-center">
-                    <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500 text-lg">No purchases found</p>
-                    <p className="text-gray-400 text-sm">Try adjusting your filters or create a new purchase</p>
+                    <UserCheck className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg">No assignments found</p>
+                    <p className="text-gray-400 text-sm">Try adjusting your filters or create a new assignment</p>
                   </td>
                 </tr>
               )}
@@ -434,4 +487,4 @@ const Purchases = () => {
   );
 };
 
-export default Purchases;
+export default Assignments;

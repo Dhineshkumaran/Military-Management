@@ -2,23 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
-  Filter, 
   Calendar,
   Package,
-  DollarSign,
-  User,
   Building2,
   CheckCircle,
   AlertCircle,
-  X
+  X,
+  AlertTriangle,
+  FileText
 } from 'lucide-react';
 
 import { getBases, getEquipmentTypes } from '../api/dashboard';
-import {getPurchases, createPurchase} from '../api/purchases';
+import { getExpenditures, createExpenditure } from '../api/expenditures';
 
-const Purchases = () => {
-  const [purchases, setPurchases] = useState([]);
-  const [filteredPurchases, setFilteredPurchases] = useState([]);
+const Expenditures = () => {
+  const [expenditures, setExpenditures] = useState([]);
+  const [filteredExpenditures, setFilteredExpenditures] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -26,20 +25,23 @@ const Purchases = () => {
   const [assetTypes, setAssetTypes] = useState([]);
 
   const [formData, setFormData] = useState({
+    base_id: '',
     asset_type: '',
     quantity: '',
-    date: new Date().toISOString().split('T')[0]
+    reason: '',
+    expenditure_date: new Date().toISOString().split('T')[0]
   });
 
   const [filters, setFilters] = useState({
-    base_id: 0,
+    base_id: '',
     start_date: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
     end_date: new Date().toISOString().split('T')[0],
     asset_type: '',
+    reason: '',
     search: ''
   });
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchData = async () => {
       const bases = await getBases();
       setBases(bases);
@@ -48,44 +50,44 @@ const Purchases = () => {
     };
 
     fetchData();
-  },[])
+  }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchData = async () => {
-      const purchases = await getPurchases(filters);
-      setPurchases(purchases);
-      console.log(purchases);
-
+      const expenditures = await getExpenditures(filters);
+      setExpenditures(expenditures);
     };
 
     fetchData();
-  },[filters])
+  }, [filters]);
 
   useEffect(() => {
-    let filtered = purchases;
+    let filtered = expenditures;
 
     if (filters.base_id) {
-      filtered = filtered.filter(p => p.base_id == filters.base_id);
+      filtered = filtered.filter(e => e.base_id == filters.base_id);
     }
     if (filters.asset_type) {
-      filtered = filtered.filter(p => p.asset_type == filters.asset_type);
+      filtered = filtered.filter(e => e.asset_type === filters.asset_type);
+    }
+    if (filters.reason) {
+      filtered = filtered.filter(e => e.reason.toLowerCase().includes(filters.reason.toLowerCase()));
     }
     if (filters.start_date) {
-      filtered = filtered.filter(p => p.purchase_date >= filters.start_date);
+      filtered = filtered.filter(e => e.expenditure_date >= filters.start_date);
     }
     if (filters.end_date) {
-      filtered = filtered.filter(p => p.purchase_date <= filters.end_date);
+      filtered = filtered.filter(e => e.expenditure_date <= filters.end_date);
     }
     if (filters.search) {
-      filtered = filtered.filter(p => 
-        p.base_name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        p.asset_type.toLowerCase().includes(filters.search.toLowerCase()) ||
-        p.created_by_name.toLowerCase().includes(filters.search.toLowerCase())
+      filtered = filtered.filter(e => 
+        e.reason.toLowerCase().includes(filters.search.toLowerCase()) ||
+        e.asset_type.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
 
-    setFilteredPurchases(filtered);
-  }, [filters, purchases]);
+    setFilteredExpenditures(filtered);
+  }, [filters, expenditures]);
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -108,6 +110,7 @@ const Purchases = () => {
       start_date: '',
       end_date: '',
       asset_type: '',
+      reason: '',
       search: ''
     });
   };
@@ -115,7 +118,7 @@ const Purchases = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.asset_type || !formData.quantity || !formData.date) {
+    if (!formData.base_id || !formData.asset_type || !formData.quantity || !formData.reason || !formData.expenditure_date) {
       setMessage({ type: 'error', text: 'Please fill in all required fields' });
       return;
     }
@@ -129,20 +132,22 @@ const Purchases = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const newPurchase = await createPurchase(formData);
-      setPurchases(prev => [newPurchase, ...prev]);
+      const newExpenditure = await createExpenditure(formData);
+      setExpenditures(prev => [newExpenditure, ...prev]);
       setFormData({
+        base_id: '',
         asset_type: '',
         quantity: '',
-        date: new Date().toISOString().split('T')[0]
+        reason: '',
+        expenditure_date: new Date().toISOString().split('T')[0]
       });
       setShowForm(false);
-      setMessage({ type: 'success', text: 'Purchase recorded successfully!' });
+      setMessage({ type: 'success', text: 'Expenditure recorded successfully!' });
       
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to record purchase' });
+      setMessage({ type: 'error', text: 'Failed to record expenditure' });
     } finally {
       setIsLoading(false);
     }
@@ -152,8 +157,8 @@ const Purchases = () => {
     <div className="space-y-6 p-6 min-h-screen">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Purchases</h1>
-          <p className="text-gray-600">Manage asset purchases and procurement</p>
+          <h1 className="text-3xl font-bold text-gray-800">Expenditures</h1>
+          <p className="text-gray-600">Track asset losses and expenditures</p>
         </div>
         <div className="mt-4 sm:mt-0">
           <button 
@@ -161,7 +166,7 @@ const Purchases = () => {
             className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:shadow-md transform hover:scale-[1.02] transition-all duration-300 flex items-center"
           >
             <Plus className="h-5 w-5 mr-2" />
-            New Purchase
+            Record Expenditure
           </button>
         </div>
       </div>
@@ -170,15 +175,15 @@ const Purchases = () => {
         <div className={`flex items-center p-4 rounded-lg ${
           message.type === 'error' 
             ? 'bg-red-50 border border-red-200' 
-            : 'bg-blue-50 border border-blue-200'
+            : 'bg-red-50 border border-red-200'
         }`}>
           {message.type === 'error' ? (
             <AlertCircle className="h-5 w-5 text-red-500 mr-3" />
           ) : (
-            <CheckCircle className="h-5 w-5 text-blue-600 mr-3" />
+            <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
           )}
           <span className={`text-sm font-medium ${
-            message.type === 'error' ? 'text-red-700' : 'text-blue-700'
+            message.type === 'error' ? 'text-red-700' : 'text-red-700'
           }`}>
             {message.text}
           </span>
@@ -193,8 +198,28 @@ const Purchases = () => {
 
       {showForm && (
         <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Record New Purchase</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Record New Expenditure</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Base <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="base_id"
+                value={formData.base_id}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
+                required
+              >
+                <option value="">Select Base</option>
+                {bases.map(base => (
+                  <option key={base.base_id} value={base.base_id}>
+                    {base.base_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Asset Type <span className="text-red-500">*</span>
@@ -203,12 +228,12 @@ const Purchases = () => {
                 name="asset_type"
                 value={formData.asset_type}
                 onChange={handleFormChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
                 required
               >
                 <option value="">Select Asset Type</option>
                 {assetTypes.map(type => (
-                  <option value={type}>
+                  <option key={type} value={type}>
                     {type}
                   </option>
                 ))}
@@ -225,23 +250,38 @@ const Purchases = () => {
                 value={formData.quantity}
                 onChange={handleFormChange}
                 min="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
                 placeholder="Enter quantity"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Reason <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="reason"
+                value={formData.reason}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
+                placeholder="Reason for expenditure"
                 required
               />
             </div>
             
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Purchase Date <span className="text-red-500">*</span>
+                Expenditure Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
-                name="date"
-                value={formData.date}
+                name="expenditure_date"
+                value={formData.expenditure_date}
                 onChange={handleFormChange}
                 max={new Date().toISOString().split('T')[0]}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
                 required
               />
             </div>
@@ -258,7 +298,7 @@ const Purchases = () => {
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2 px-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-2 px-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -266,7 +306,7 @@ const Purchases = () => {
                   Recording...
                 </div>
               ) : (
-                'Record Purchase'
+                'Record Expenditure'
               )}
             </button>
           </div>
@@ -284,17 +324,17 @@ const Purchases = () => {
           </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search purchases..."
+                placeholder="Search expenditures..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
               />
             </div>
           </div>
@@ -304,7 +344,7 @@ const Purchases = () => {
             <select
               value={filters.base_id}
               onChange={(e) => handleFilterChange('base_id', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
             >
               <option value="">All Bases</option>
               {bases.map(base => (
@@ -318,13 +358,24 @@ const Purchases = () => {
             <select
               value={filters.asset_type}
               onChange={(e) => handleFilterChange('asset_type', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
             >
               <option value="">All Types</option>
               {assetTypes.map(type => (
-                <option value={type}>{type}</option>
+                <option key={type} value={type}>{type}</option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+            <input
+              type="text"
+              placeholder="Filter by reason"
+              value={filters.reason}
+              onChange={(e) => handleFilterChange('reason', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
+            />
           </div>
           
           <div>
@@ -333,7 +384,7 @@ const Purchases = () => {
               type="date"
               value={filters.start_date}
               onChange={(e) => handleFilterChange('start_date', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
             />
           </div>
           
@@ -343,7 +394,7 @@ const Purchases = () => {
               type="date"
               value={filters.end_date}
               onChange={(e) => handleFilterChange('end_date', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/30 focus:border-red-500 bg-white"
             />
           </div>
         </div>
@@ -351,9 +402,9 @@ const Purchases = () => {
 
       <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800">Purchase History</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Expenditure History</h3>
           <p className="text-sm text-gray-600">
-            Showing {filteredPurchases.length} of {purchases.length} purchases
+            Showing {filteredExpenditures.length} of {expenditures.length} expenditures
           </p>
         </div>
         
@@ -368,51 +419,53 @@ const Purchases = () => {
                   Quantity
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Base
+                  Reason
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Purchase Date
+                  Expenditure Date
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created By
+                  Base ID
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPurchases.length > 0 ? (
-                filteredPurchases.map((purchase) => (
-                  <tr key={purchase.id} className="hover:bg-gray-50">
+              {filteredExpenditures.length > 0 ? (
+                filteredExpenditures.map((expenditure) => (
+                  <tr key={expenditure.expenditure_id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <Package className="h-4 w-4 text-gray-400 mr-2" />
                         <span className="text-sm text-gray-900 font-semibold">
-                          {purchase.asset_type}
+                          {expenditure.asset_type}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900 font-semibold">
-                        {purchase.quantity.toLocaleString()}
+                      <span className="text-sm text-red-700 font-semibold">
+                        -{expenditure.quantity.toLocaleString()}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <Building2 className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">{purchase.base_name}</span>
+                        <FileText className="h-4 w-4 text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-900">
+                          {expenditure.reason}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 text-gray-400 mr-2" />
                         <span className="text-sm text-gray-900">
-                          {new Date(purchase.purchase_date).toLocaleDateString()}
+                          {new Date(expenditure.expenditure_date).toLocaleDateString()}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <User className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">{purchase.created_by_name}</span>
+                        <Building2 className="h-4 w-4 text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-900">{expenditure.base_id}</span>
                       </div>
                     </td>
                   </tr>
@@ -420,9 +473,9 @@ const Purchases = () => {
               ) : (
                 <tr>
                   <td colSpan="5" className="px-6 py-12 text-center">
-                    <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500 text-lg">No purchases found</p>
-                    <p className="text-gray-400 text-sm">Try adjusting your filters or create a new purchase</p>
+                    <AlertTriangle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg">No expenditures found</p>
+                    <p className="text-gray-400 text-sm">Try adjusting your filters or record a new expenditure</p>
                   </td>
                 </tr>
               )}
@@ -434,4 +487,4 @@ const Purchases = () => {
   );
 };
 
-export default Purchases;
+export default Expenditures;
