@@ -1,6 +1,10 @@
-export const getAssignments = async () => {
+export const getAssignments = async (auth) => {
     try {
-        const response = await fetch('http://localhost:3000/assignments/history');
+        const response = await fetch('http://localhost:3000/assignments/history', {
+            headers: {
+                'Authorization': `Bearer ${auth.token}`
+            }
+        });
         if (!response.ok) {
             throw new Error('Error fetching assignments');
         }
@@ -12,9 +16,13 @@ export const getAssignments = async () => {
     }
 }
 
-export const createAssignment = async (assignment) => {
+export const createAssignment = async (assignment, auth) => {
     try {
         const response = await fetch('http://localhost:3000/assignments', {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            },
             method: 'POST',
             body: JSON.stringify(assignment)
         });

@@ -14,6 +14,7 @@ import {
 
 import { getBases, getEquipmentTypes } from '../api/dashboard';
 import {getTransfers, createTransfer} from '../api/transfers';
+import { useAuth } from '../contexts/AuthContext';
 
 const Transfers = () => {
   const [transfers, setTransfers] = useState([]);
@@ -23,6 +24,7 @@ const Transfers = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [bases, setBases] = useState([]);
   const [assetTypes, setAssetTypes] = useState([]);
+  const { auth } = useAuth();
 
   const [formData, setFormData] = useState({
     asset_type: '',
@@ -42,9 +44,9 @@ const Transfers = () => {
 
   useEffect(()=>{
     const fetchData = async () => {
-      const bases = await getBases();
+      const bases = await getBases(auth);
       setBases(bases);
-      const assetTypes = await getEquipmentTypes();
+      const assetTypes = await getEquipmentTypes(auth);
       setAssetTypes(assetTypes);
     };
 
@@ -53,7 +55,7 @@ const Transfers = () => {
 
   useEffect(()=>{
     const fetchData = async () => {
-      const transfers = await getTransfers(filters);
+      const transfers = await getTransfers(filters, auth);
       setTransfers(transfers);
       console.log(transfers);
 
@@ -130,7 +132,7 @@ const Transfers = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const newTransfer = await createTransfer(formData);
+      const newTransfer = await createTransfer(formData, auth);
       setTransfers(prev => [newTransfer, ...prev]);
       setFormData({
         asset_type: '',

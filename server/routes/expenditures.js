@@ -5,14 +5,14 @@ import asyncErrorHandler from '../utils/asyncErrorHandler.js';
 import Client from '../config/connection.js';
 const router = express.Router();
 
-router.get('/history', asyncErrorHandler(async(req, res, next)=>{
+router.get('/history', verifyToken, authorizeRoles(1, 2, 3), asyncErrorHandler(async(req, res, next)=>{
     const response = await Client.query(
         `SELECT * FROM expenditures`
     )
     res.status(200).json(response.rows);
 }))
 
-router.post('/', asyncErrorHandler(async(req, res, next)=>{
+router.post('/', verifyToken, authorizeRoles(1, 2), asyncErrorHandler(async(req, res, next)=>{
     const {base_id, asset_type, quantity, reason, expenditure_date} = req.body;
     const {user_id} = req.user;
     const response = await Client.query(

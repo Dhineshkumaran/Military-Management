@@ -5,33 +5,14 @@ import asyncErrorHandler from '../utils/asyncErrorHandler.js';
 import Client from '../config/connection.js';
 const router = express.Router();
 
-router.get('/history', asyncErrorHandler(async(req, res, next)=>{
+router.get('/history', verifyToken, authorizeRoles(1, 2, 3), asyncErrorHandler(async(req, res, next)=>{
     const response = await Client.query(
         `SELECT *, (SELECT base_name FROM bases WHERE base_id = t.from_base_id) AS from_base_name, (SELECT base_name FROM bases WHERE base_id = to_base_id) AS to_base_name, (SELECT username FROM users u WHERE u.user_id=t.created_by) AS created_by_name FROM transfers t`,
     )
     res.status(200).json(response.rows);
 }))
 
-router.get('/', asyncErrorHandler(async(req, res, next)=>{
-    const {base_id, start_date, end_date, asset_type} = req.query;
-    const response = await Client.query(
-        `SELECT 
-            t.transfer_id,
-            t.asset_type,
-            t.quantity,
-            b_from.base_name AS from_base,
-            b_to.base_name   AS to_base,
-            t.transfer_date
-        FROM transfers t
-        JOIN bases b_from ON t.from_base_id = b_from.base_id
-        JOIN bases b_to ON t.to_base_id = b_to.base_id
-        WHERE t.from_base_id = $1 AND t.transfer_date BETWEEN $2 AND $3 AND t.asset_type = $4`,
-        [base_id, start_date, end_date, asset_type]
-    )
-    res.status(200).json(response.rows);
-}))
-
-router.get('/', asyncErrorHandler(async(req, res, next)=>{
+router.get('/', verifyToken, authorizeRoles(1, 2, 3), asyncErrorHandler(async(req, res, next)=>{
     const {base_id, start_date, end_date, asset_type} = req.query;
     const response = await Client.query(
         `SELECT 
@@ -50,7 +31,7 @@ router.get('/', asyncErrorHandler(async(req, res, next)=>{
     res.status(200).json(response.rows);
 }))
 
-router.post('/', asyncErrorHandler(async(req, res, next)=>{
+router.post('/', verifyToken, authorizeRoles(1, 2), asyncErrorHandler(async(req, res, next)=>{
     const {from_base_id, to_base_id, asset_type, quantity, transfer_date} = req.body;
     const {user_id} = req.user;
     const response = await Client.query(

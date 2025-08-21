@@ -1,6 +1,10 @@
-const getEquipmentTypes = async () => {
+const getEquipmentTypes = async (auth) => {
   try {
-    const response = await fetch('http://localhost:3000/dashboard/equipment-types');
+    const response = await fetch('http://localhost:3000/dashboard/equipment-types', {
+      headers: {
+        'Authorization': `Bearer ${auth.token}`
+      }
+    });
     const data = await response.json();
     return data;
   } catch (error) {
@@ -9,9 +13,13 @@ const getEquipmentTypes = async () => {
   }
 };
 
-const getBases = async () => {
+const getBases = async (auth) => {
   try {
-    const response = await fetch(`http://localhost:3000/dashboard/bases`);
+    const response = await fetch(`http://localhost:3000/dashboard/bases`, {
+      headers: {
+        'Authorization': `Bearer ${auth.token}`
+      }
+    });
     const data = await response.json();
     return data;
   } catch (error) {
@@ -20,9 +28,13 @@ const getBases = async () => {
   }
 };
 
-const getRecentTransfers = async (baseId, assetType, startDate, endDate) => {
+const getRecentTransfers = async (baseId, assetType, startDate, endDate, auth) => {
   try {
-    const response = await fetch(`http://localhost:3000/dashboard/recent-transfers?base_id=${baseId}&asset_type=${assetType}&start_date=${startDate}&end_date=${endDate}`);
+    const response = await fetch(`http://localhost:3000/dashboard/recent-transfers?base_id=${baseId}&asset_type=${assetType}&start_date=${startDate}&end_date=${endDate}`, {
+      headers: {
+        'Authorization': `Bearer ${auth.token}`
+      }
+    });
     const data = await response.json();
     return data;
   } catch (error) {
@@ -31,9 +43,13 @@ const getRecentTransfers = async (baseId, assetType, startDate, endDate) => {
   }
 };
 
-const getSummary = async (baseId, assetType, startDate, endDate) => {
+const getSummary = async (baseId, assetType, startDate, endDate, auth) => {
   try {
-    const response = await fetch(`http://localhost:3000/dashboard/summary?base_id=${baseId}&asset_type=${assetType}&start_date=${startDate}&end_date=${endDate}`);
+    const response = await fetch(`http://localhost:3000/dashboard/summary?base_id=${baseId}&asset_type=${assetType}&start_date=${startDate}&end_date=${endDate}`, {
+      headers: {
+        'Authorization': `Bearer ${auth.token}`
+      }
+    });
     const data = await response.json();
     return data;
   } catch (error) {
@@ -42,9 +58,13 @@ const getSummary = async (baseId, assetType, startDate, endDate) => {
   }
 };
 
-const getRecentPurchases = async (base_id) => {
+const getRecentPurchases = async (base_id, auth) => {
   try {
-    const response = await fetch(`http://localhost:3000/dashboard/recent-purchases?base_id=${base_id}`);
+    const response = await fetch(`http://localhost:3000/dashboard/recent-purchases?base_id=${base_id}`, {
+      headers: {
+        'Authorization': `Bearer ${auth.token}`
+      }
+    });
     const data = await response.json();
     return data;
   } catch (error) {

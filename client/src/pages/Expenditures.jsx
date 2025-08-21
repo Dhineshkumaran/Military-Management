@@ -14,6 +14,7 @@ import {
 
 import { getBases, getEquipmentTypes } from '../api/dashboard';
 import { getExpenditures, createExpenditure } from '../api/expenditures';
+import { useAuth } from '../contexts/AuthContext';
 
 const Expenditures = () => {
   const [expenditures, setExpenditures] = useState([]);
@@ -23,6 +24,7 @@ const Expenditures = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [bases, setBases] = useState([]);
   const [assetTypes, setAssetTypes] = useState([]);
+  const { auth } = useAuth();
 
   const [formData, setFormData] = useState({
     base_id: '',
@@ -43,9 +45,9 @@ const Expenditures = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const bases = await getBases();
+      const bases = await getBases(auth);
       setBases(bases);
-      const assetTypes = await getEquipmentTypes();
+      const assetTypes = await getEquipmentTypes(auth);
       setAssetTypes(assetTypes);
     };
 
@@ -54,7 +56,7 @@ const Expenditures = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const expenditures = await getExpenditures(filters);
+      const expenditures = await getExpenditures(filters, auth);
       setExpenditures(expenditures);
     };
 
@@ -132,7 +134,7 @@ const Expenditures = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const newExpenditure = await createExpenditure(formData);
+      const newExpenditure = await createExpenditure(formData, auth);
       setExpenditures(prev => [newExpenditure, ...prev]);
       setFormData({
         base_id: '',

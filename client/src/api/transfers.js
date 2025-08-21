@@ -1,6 +1,10 @@
-const getTransfers = async(filters) => {
+const getTransfers = async(filters, auth) => {
     try {
-        const response = await fetch('http://localhost:3000/transfers/history');
+        const response = await fetch('http://localhost:3000/transfers/history', {
+            headers: {
+                'Authorization': `Bearer ${auth.token}`
+            }
+        });
         const data = await response.json();
         return data;
     } catch (error) {
@@ -9,11 +13,15 @@ const getTransfers = async(filters) => {
     }
 }
 
-const createTransfer = async (transferData) => {
+const createTransfer = async (transferData, auth) => {
     try {
         const response = await fetch('http://localhost:3000/transfers', {
             method: 'POST',
-            body: JSON.stringify(transferData)
+            body: JSON.stringify(transferData),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.token}`
+            }
         });
         const data = await response.json();
         return data;

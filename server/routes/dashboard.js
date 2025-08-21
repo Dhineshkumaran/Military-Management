@@ -5,7 +5,7 @@ import asyncErrorHandler from '../utils/asyncErrorHandler.js';
 import Client from '../config/connection.js';
 const router = express.Router();
 
-router.get('/summary', asyncErrorHandler(async(req, res, next) => {
+router.get('/summary', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
     const {base_id, asset_type, start_date, end_date} = req.query;
     const response = await Client.query(
         `WITH
@@ -74,7 +74,7 @@ router.get('/summary', asyncErrorHandler(async(req, res, next) => {
 })
 );
 
-router.get('/recent-purchases', asyncErrorHandler(async(req, res, next) => {
+router.get('/recent-purchases', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
     const {base_id} = req.query;
     const response = await Client.query(
         `SELECT
@@ -92,7 +92,7 @@ router.get('/recent-purchases', asyncErrorHandler(async(req, res, next) => {
 })
 );
 
-router.get('/recent-transfers', asyncErrorHandler(async(req, res, next) => {
+router.get('/recent-transfers', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
     const {base_id} = req.query;
     const response = await Client.query(
         `SELECT
@@ -112,7 +112,7 @@ router.get('/recent-transfers', asyncErrorHandler(async(req, res, next) => {
 })
 );
 
-router.get('/bases', asyncErrorHandler(async(req, res, next) => {
+router.get('/bases', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
     const response = await Client.query(
         `SELECT * FROM bases`
     );
@@ -120,7 +120,7 @@ router.get('/bases', asyncErrorHandler(async(req, res, next) => {
 })
 );
 
-router.get('/equipment-types', asyncErrorHandler(async(req, res, next) => {
+router.get('/equipment-types', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
     const response = await Client.query(
         `SELECT ARRAY_AGG(DISTINCT asset_type) AS asset_types FROM assets`
     );

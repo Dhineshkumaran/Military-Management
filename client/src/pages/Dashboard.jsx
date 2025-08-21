@@ -11,6 +11,7 @@ import {
   X,
   ShoppingCart
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 const Dashboard = () => {
 
     const [summary, setSummary] = useState({
@@ -27,6 +28,7 @@ const Dashboard = () => {
     const [bases, setBases] = useState([]);
     const [equipmentTypes, setEquipmentTypes] = useState([]);
     const [loading, setLoading] = useState(false);
+    const { user } = useAuth();
 
     const [filters, setFilters] = useState({
       startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
@@ -39,19 +41,19 @@ const Dashboard = () => {
       const fetchData = async () => {
         setLoading(true);
 
-        const summary = await getSummary(filters.baseId, filters.equipmentType, filters.startDate, filters.endDate);
+        const summary = await getSummary(filters.baseId, filters.equipmentType, filters.startDate, filters.endDate, auth);
         setSummary(summary);
 
-        const recentTransfers = await getRecentTransfers(filters.baseId, filters.equipmentType, filters.startDate, filters.endDate);
+        const recentTransfers = await getRecentTransfers(filters.baseId, filters.equipmentType, filters.startDate, filters.endDate, auth);
         setRecentTransfers(recentTransfers);
 
-        const recentPurchases = await getRecentPurchases(filters.baseId);
+        const recentPurchases = await getRecentPurchases(filters.baseId, auth);
         setRecentPurchases(recentPurchases);
 
-        const bases = await getBases();
+        const bases = await getBases(auth);
         setBases(bases);
 
-        const equipmentTypes = await getEquipmentTypes();
+        const equipmentTypes = await getEquipmentTypes(auth);
         setEquipmentTypes(equipmentTypes);
 
         setLoading(false);
@@ -125,12 +127,13 @@ const Dashboard = () => {
     loading
     ? (<p>Loading!</p>) 
     :
-    (<div className="space-y-6 p-6 min-h-screen">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-gray-600">Overview of military asset management</p>
-        </div>
+    (user && user.role_id==1) ? (
+      <div className="space-y-6 p-6 min-h-screen">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+            <p className="text-gray-600">Overview of military asset management</p>
+          </div>
         <div className="mt-4 sm:mt-0">
           <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
             <Filter className="h-4 w-4 mr-2" />
@@ -285,6 +288,10 @@ const Dashboard = () => {
           baseId={filters.baseId}
         />
       )}
+    </div>
+  ) : (
+    <div className="p-6">
+      <p className="text-gray-600">You are not authorized to view this content</p>
     </div>
   ));
 }

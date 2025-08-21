@@ -3,8 +3,10 @@ import bcrypt from 'bcrypt';
 import Client from '../config/connection.js';
 const router = express.Router();
 import asyncErrorHandler from '../utils/asyncErrorHandler.js';
+import authorizeRoles from '../middlewares/authorizeRoles.js';
+import verifyToken from '../middlewares/verifyToken.js';
 
-router.post('/', asyncErrorHandler(async(req, res, next) => {
+router.post('/', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
     const {username, password, role_id, base_id} = req.body;
     const hash = await bcrypt.hash(password, 8);
     const response = await Client.query(

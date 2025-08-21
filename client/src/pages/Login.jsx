@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Shield, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {useAuth} from '../contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const {login} = useAuth();
   const [credentials, setCredentials] = useState({
     username: '',
     password: '',
@@ -44,7 +46,7 @@ const Login = () => {
       });
       const data = await result.json();
       if (data.token) {
-        localStorage.setItem('token', data.token);
+        login(data);
         setMessage({ type: 'success', text: 'Login successful! Redirecting...' });
         setTimeout(() => {
           navigate('/dashboard');

@@ -5,19 +5,25 @@ import {
   X,
   ShoppingCart
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const NetMovementModal = ({ isOpen, onClose, startDate, endDate, baseId, assetType }) => {
 
   const [purchases, setPurchases] = useState([]);
   const [transfersIn, setTransfersIn] = useState([]);
   const [transfersOut, setTransfersOut] = useState([]);
+  const { auth } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // console.log(`http://localhost:3000/purchases?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`);
-        
-        const response = await fetch(`http://localhost:3000/purchases?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`);
+
+        const response = await fetch(`http://localhost:3000/purchases?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`, {
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        });
         const data = await response.json();
         setPurchases(data);
         console.log(data);
@@ -26,7 +32,11 @@ const NetMovementModal = ({ isOpen, onClose, startDate, endDate, baseId, assetTy
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/transfers-in?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`);
+        const response = await fetch(`http://localhost:3000/transfers-in?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`, {
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        });
         const data = await response.json();
         setTransfersIn(data);
         console.log(data);
@@ -35,7 +45,11 @@ const NetMovementModal = ({ isOpen, onClose, startDate, endDate, baseId, assetTy
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/transfers-out?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`);
+        const response = await fetch(`http://localhost:3000/transfers-out?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`, {
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        });
         const data = await response.json();
         setTransfersOut(data);
         console.log(data);

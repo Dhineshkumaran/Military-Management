@@ -15,6 +15,7 @@ import {
 
 import { getBases, getEquipmentTypes } from '../api/dashboard';
 import {getPurchases, createPurchase} from '../api/purchases';
+import { useAuth } from '../contexts/AuthContext';
 
 const Purchases = () => {
   const [purchases, setPurchases] = useState([]);
@@ -24,6 +25,7 @@ const Purchases = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [bases, setBases] = useState([]);
   const [assetTypes, setAssetTypes] = useState([]);
+  const { auth } = useAuth();
 
   const [formData, setFormData] = useState({
     asset_type: '',
@@ -41,7 +43,7 @@ const Purchases = () => {
 
   useEffect(()=>{
     const fetchData = async () => {
-      const bases = await getBases();
+      const bases = await getBases(auth);
       setBases(bases);
       const assetTypes = await getEquipmentTypes();
       setAssetTypes(assetTypes);
@@ -52,7 +54,7 @@ const Purchases = () => {
 
   useEffect(()=>{
     const fetchData = async () => {
-      const purchases = await getPurchases(filters);
+      const purchases = await getPurchases(filters, auth);
       setPurchases(purchases);
       console.log(purchases);
 
@@ -129,7 +131,7 @@ const Purchases = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const newPurchase = await createPurchase(formData);
+      const newPurchase = await createPurchase(formData, auth);
       setPurchases(prev => [newPurchase, ...prev]);
       setFormData({
         asset_type: '',

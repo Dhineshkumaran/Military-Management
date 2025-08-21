@@ -14,6 +14,7 @@ import {
 
 import { getBases, getEquipmentTypes } from '../api/dashboard';
 import { getAssignments, createAssignment } from '../api/assignments';
+import { useAuth } from '../contexts/AuthContext'; 
 
 const Assignments = () => {
   const [assignments, setAssignments] = useState([]);
@@ -23,6 +24,7 @@ const Assignments = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [bases, setBases] = useState([]);
   const [assetTypes, setAssetTypes] = useState([]);
+  const { auth } = useAuth() || {};
 
   const [formData, setFormData] = useState({
     base_id: '',
@@ -43,9 +45,9 @@ const Assignments = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const bases = await getBases();
+      const bases = await getBases(auth);
       setBases(bases);
-      const assetTypes = await getEquipmentTypes();
+      const assetTypes = await getEquipmentTypes(auth);
       setAssetTypes(assetTypes);
     };
 
@@ -54,7 +56,7 @@ const Assignments = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const assignments = await getAssignments(filters);
+      const assignments = await getAssignments(filters, auth);
       setAssignments(assignments);
     };
 
@@ -132,7 +134,7 @@ const Assignments = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const newAssignment = await createAssignment(formData);
+      const newAssignment = await createAssignment(formData, auth);
       setAssignments(prev => [newAssignment, ...prev]);
       setFormData({
         base_id: 0,

@@ -24,10 +24,21 @@ router.post('/', asyncErrorHandler(async(req, res, next) => {
       const error = new CustomError('User not found', 404);
       next(error);
     }
+    console.log(user);
+
     const match = await bcrypt.compare(password, user.password_hash);
     if(match){
         const token = generateToken(user.user_id, user.username, user.role_id, user.base_id);
-        res.status(200).json({token: token});
+        res.status(200).json(
+          {token: token,
+           user: {
+            user_id: user.user_id,
+            username: user.username, 
+            role_id: user.role_id, 
+            base_id: user.base_id
+           }
+          }
+        );
     } else{
         const error = new CustomError('Invalid credentials', 400);
         next(error);

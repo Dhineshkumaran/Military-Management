@@ -5,7 +5,7 @@ import asyncErrorHandler from '../utils/asyncErrorHandler.js';
 import Client from '../config/connection.js';
 const router = express.Router();
 
-router.get('/', asyncErrorHandler(async(req, res, next)=>{
+router.get('/', verifyToken, authorizeRoles(1, 2, 3), asyncErrorHandler(async(req, res, next)=>{
     const {base_id, start_date, end_date, asset_type} = req.query;
     if(base_id && start_date && end_date && asset_type){
         const response = await Client.query(
@@ -30,7 +30,7 @@ router.get('/', asyncErrorHandler(async(req, res, next)=>{
     }
 }))
 
-router.post('/', asyncErrorHandler(async(req, res, next)=>{
+router.post('/', verifyToken, authorizeRoles(1, 2), asyncErrorHandler(async(req, res, next)=>{
     const {base_id, user_id} = req.user;
     const {asset_type, quantity, date} = req.body;
     const response = await Client.query(
