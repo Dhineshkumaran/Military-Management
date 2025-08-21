@@ -28,7 +28,7 @@ const Dashboard = () => {
     const [bases, setBases] = useState([]);
     const [equipmentTypes, setEquipmentTypes] = useState([]);
     const [loading, setLoading] = useState(false);
-    const { user } = useAuth();
+    const { auth } = useAuth();
 
     const [filters, setFilters] = useState({
       startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
@@ -127,7 +127,7 @@ const Dashboard = () => {
     loading
     ? (<p>Loading!</p>) 
     :
-    (user && user.role_id==1) ? (
+    (auth && auth.user && auth.user.role_id==1) ? (
       <div className="space-y-6 p-6 min-h-screen">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
