@@ -145,6 +145,12 @@ const Login = () => {
               </div>
             </div>
 
+            <div>
+                <p>Credentials for demo purposes:</p>
+                <p>Username: Admin123</p>
+                <p>Password: Admin123</p>
+            </div>
+
             <button
               type="button"
               onClick={handleSubmit}
