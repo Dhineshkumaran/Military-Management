@@ -31,6 +31,12 @@ app.use('/api/purchases', purchaseRoutes);
 app.use('/api/transfers', transferRoutes);
 app.use('/api/transfers-in', transferRoutes);
 app.use('/api/transfers-out', transferRoutes);
+app.use('/health', (req, res) => {
+    res.status(200).json({status: 'OK'});
+});
+app.use('*', (req, res) => {
+    res.status(404).json({status: 'Not Found'});
+});
 
 app.use((error, req, res, next) => {
     console.error(error.stack);
@@ -49,7 +55,7 @@ async function query(arg){
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, 'localhost', ()=>{
+app.listen(port, '0.0.0.0', ()=>{
     query('SELECT NOW()');
     console.log(`Server is listening on port ${port}`);
 })
