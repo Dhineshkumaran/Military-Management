@@ -50,7 +50,7 @@ const Login = () => {
         login(data);
         setMessage({ type: 'success', text: 'Login successful! Redirecting...' });
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate('/purchases');
         }, 1500);
       } else {
         setMessage({ type: 'error', text: 'Login failed' });
@@ -148,8 +148,15 @@ const Login = () => {
 
             <div>
                 <p>Credentials for demo purposes:</p>
+                <b>For Admin</b>
                 <p>Username: Admin123</p>
-                <p>Password: Admin123</p>
+                <p>Password: Admin123</p><br />
+                <b>For Base Commander</b>
+                <p>Username: BaseCom1</p>
+                <p>Password: base123</p><br />
+                <b>For Logistic Officer</b>
+                <p>Username: LogOff1</p>
+                <p>Password: LogOff123</p>
             </div>
 
             <button

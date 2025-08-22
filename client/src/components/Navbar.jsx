@@ -37,6 +37,7 @@ const Navbar = ({currentPath = '/', onNavigate }) => {
     { path: '/assignments', label: 'Assignments', icon: ClipboardList },
     { path: '/expenditures', label: 'Expenditures', icon: DollarSign },
     ...(isAdmin ? [{ path: '/signup', label: 'Add User', icon: UserPlus }] : []),
+    ...(isAdmin ? [{ path: '/logs', label: 'Audit Logs', icon: ClipboardList }] : []),
   ];
 
   return (

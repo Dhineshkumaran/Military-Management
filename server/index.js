@@ -11,6 +11,7 @@ import assignmentRoutes from './routes/assignments.js';
 import expenditureRoutes from './routes/expenditures.js';
 import purchaseRoutes from './routes/purchases.js';
 import transferRoutes from './routes/transfers.js';
+import auditRoutes from './routes/audit.js';
 
 import CustomError from './utils/customError.js';
 
@@ -33,6 +34,7 @@ app.use('/api/purchases', purchaseRoutes);
 app.use('/api/transfers', transferRoutes);
 app.use('/api/transfers-in', transferRoutes);
 app.use('/api/transfers-out', transferRoutes);
+app.use('/api/logs', auditRoutes);
 app.use('/health', (req, res) => {
     res.status(200).json({status: 'OK'});
 });

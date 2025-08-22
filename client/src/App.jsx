@@ -12,6 +12,7 @@ import AdminRoute from "./components/AdminRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import Navbar from "./components/Navbar";
 import { useLocation, useNavigate } from 'react-router-dom';
+import Logs from "./pages/Logs";
 
 function App() {
   const location = useLocation();
@@ -28,6 +29,7 @@ function App() {
           <Route path="/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
           <Route path="/expenditures" element={<ProtectedRoute><Expenditures /></ProtectedRoute>} />
           <Route path="/signup" element={<AdminRoute><Signup /></AdminRoute>} />
+          <Route path="/logs" element={<AdminRoute><Logs /></AdminRoute>} />
         </Routes>
     </AuthProvider>
   )
