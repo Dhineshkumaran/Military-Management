@@ -50,7 +50,7 @@ const Logs = () => {
                   </div>
                   
                   <div className="text-sm text-gray-600 space-y-1">
-                    <div>{log.details}</div>
+                    <div>{JSON.stringify(log.details)}</div>
                   </div>
                 </div>
                 
