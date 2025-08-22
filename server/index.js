@@ -12,6 +12,8 @@ import expenditureRoutes from './routes/expenditures.js';
 import purchaseRoutes from './routes/purchases.js';
 import transferRoutes from './routes/transfers.js';
 
+import CustomError from './utils/customError.js';
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -34,9 +36,10 @@ app.use('/api/transfers-out', transferRoutes);
 app.use('/health', (req, res) => {
     res.status(200).json({status: 'OK'});
 });
-app.use('*', (req, res) => {
-    res.status(404).json({status: 'Not Found'});
-});
+// app.all('*', (req, res, next)=>{
+//     const err = new CustomError(`Can't find the ${req.originalUrl} on the server!`, 404);
+//     next(err);
+// });
 
 app.use((error, req, res, next) => {
     console.error(error.stack);
