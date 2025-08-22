@@ -1,6 +1,8 @@
+import API_URL from '../config.js';
+
 export const getExpenditures = async (auth) => {
     try {
-        const response = await fetch('http://localhost:3000/expenditures/history', {
+        const response = await fetch(`${API_URL}/expenditures/history`, {
             headers: {
                 'Authorization': `Bearer ${auth.token}`
             }
@@ -18,7 +20,7 @@ export const getExpenditures = async (auth) => {
 
 export const createExpenditure = async (expenditureData, auth) => {
     try {
-        const response = await fetch('http://localhost:3000/expenditures', {
+        const response = await fetch(`${API_URL}/expenditures`, {
             method: 'POST',
             body: JSON.stringify(expenditureData),
             headers: {

@@ -1,10 +1,14 @@
+import API_URL from '../config.js';
+
 const getEquipmentTypes = async (auth) => {
   try {
-    const response = await fetch('http://localhost:3000/dashboard/equipment-types', {
+    const response = await fetch(`${API_URL}/dashboard/equipment-types`, {
       headers: {
         'Authorization': `Bearer ${auth.token}`
       }
     });
+    console.log(response);
+    
     const data = await response.json();
     return data;
   } catch (error) {
@@ -13,9 +17,24 @@ const getEquipmentTypes = async (auth) => {
   }
 };
 
+const getRoles = async (auth) => {
+  try {
+    const response = await fetch(`${API_URL}/dashboard/roles`, {
+      headers: {
+        'Authorization': `Bearer ${auth.token}`
+      }
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching roles:', error);
+    return [];
+  }
+};
+
 const getBases = async (auth) => {
   try {
-    const response = await fetch(`http://localhost:3000/dashboard/bases`, {
+    const response = await fetch(`${API_URL}/dashboard/bases`, {
       headers: {
         'Authorization': `Bearer ${auth.token}`
       }
@@ -30,7 +49,7 @@ const getBases = async (auth) => {
 
 const getRecentTransfers = async (baseId, assetType, startDate, endDate, auth) => {
   try {
-    const response = await fetch(`http://localhost:3000/dashboard/recent-transfers?base_id=${baseId}&asset_type=${assetType}&start_date=${startDate}&end_date=${endDate}`, {
+    const response = await fetch(`${API_URL}/dashboard/recent-transfers?base_id=${baseId}&asset_type=${assetType}&start_date=${startDate}&end_date=${endDate}`, {
       headers: {
         'Authorization': `Bearer ${auth.token}`
       }
@@ -45,7 +64,7 @@ const getRecentTransfers = async (baseId, assetType, startDate, endDate, auth) =
 
 const getSummary = async (baseId, assetType, startDate, endDate, auth) => {
   try {
-    const response = await fetch(`http://localhost:3000/dashboard/summary?base_id=${baseId}&asset_type=${assetType}&start_date=${startDate}&end_date=${endDate}`, {
+    const response = await fetch(`${API_URL}/dashboard/summary?base_id=${baseId}&asset_type=${assetType}&start_date=${startDate}&end_date=${endDate}`, {
       headers: {
         'Authorization': `Bearer ${auth.token}`
       }
@@ -60,7 +79,7 @@ const getSummary = async (baseId, assetType, startDate, endDate, auth) => {
 
 const getRecentPurchases = async (base_id, auth) => {
   try {
-    const response = await fetch(`http://localhost:3000/dashboard/recent-purchases?base_id=${base_id}`, {
+    const response = await fetch(`${API_URL}/dashboard/recent-purchases?base_id=${base_id}`, {
       headers: {
         'Authorization': `Bearer ${auth.token}`
       }
@@ -73,4 +92,4 @@ const getRecentPurchases = async (base_id, auth) => {
   }
 };
 
-export { getEquipmentTypes, getRecentTransfers, getSummary, getRecentPurchases, getBases };
+export { getEquipmentTypes, getRecentTransfers, getSummary, getRecentPurchases, getBases, getRoles };

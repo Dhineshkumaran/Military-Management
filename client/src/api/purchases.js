@@ -1,7 +1,9 @@
+import API_URL from '../config.js';
+
 const getPurchases = async(filters, auth) =>{
     try {
         // ?base_id=${filters.base_id}&start_date=${filters.start_date}&end_date=${filters.end_date}&asset_type=${filters.asset_type}&search=${filters.search}
-        const response = await fetch(`http://localhost:3000/purchases`, {
+        const response = await fetch(`${API_URL}/purchases`, {
             headers: {
                 'Authorization': `Bearer ${auth.token}`
             }
@@ -16,7 +18,7 @@ const getPurchases = async(filters, auth) =>{
 
 const createPurchase = async (purchaseData, auth) => {
     try {
-        const response = await fetch('http://localhost:3000/purchases', {
+        const response = await fetch(`${API_URL}/purchases`, {
             method: 'POST',
             body: JSON.stringify(purchaseData),
             headers: {

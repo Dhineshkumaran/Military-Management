@@ -126,8 +126,7 @@ const Dashboard = () => {
   return (
     loading
     ? (<p>Loading!</p>) 
-    :
-    (auth && auth.user && auth.user.role_id==1) ? (
+    :(
       <div className="space-y-6 p-6 min-h-screen">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -288,10 +287,6 @@ const Dashboard = () => {
           baseId={filters.baseId}
         />
       )}
-    </div>
-  ) : (
-    <div className="p-6">
-      <p className="text-gray-600">You are not authorized to view this content</p>
     </div>
   ));
 }

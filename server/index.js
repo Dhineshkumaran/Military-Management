@@ -17,18 +17,20 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 app.use(cors({
-    origin: ['http://localhost:5173']
+    origin: ['http://localhost:5173',
+        'https://military-management-three.vercel.app'
+    ]
 }))
 
-app.use('/signup', signupRoutes);
-app.use('/login', loginRoutes);
-app.use('/dashboard', dashboardRoutes);
-app.use('/assignments', assignmentRoutes);
-app.use('/expenditures', expenditureRoutes);
-app.use('/purchases', purchaseRoutes);
-app.use('/transfers', transferRoutes);
-app.use('/transfers-in', transferRoutes);
-app.use('/transfers-out', transferRoutes);
+app.use('/api/signup', signupRoutes);
+app.use('/api/login', loginRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/assignments', assignmentRoutes);
+app.use('/api/expenditures', expenditureRoutes);
+app.use('/api/purchases', purchaseRoutes);
+app.use('/api/transfers', transferRoutes);
+app.use('/api/transfers-in', transferRoutes);
+app.use('/api/transfers-out', transferRoutes);
 
 app.use((error, req, res, next) => {
     console.error(error.stack);

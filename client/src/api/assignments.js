@@ -1,6 +1,8 @@
+import API_URL from '../config.js';
+
 export const getAssignments = async (auth) => {
     try {
-        const response = await fetch('http://localhost:3000/assignments/history', {
+        const response = await fetch(`${API_URL}/assignments/history`, {
             headers: {
                 'Authorization': `Bearer ${auth.token}`
             }
@@ -18,7 +20,7 @@ export const getAssignments = async (auth) => {
 
 export const createAssignment = async (assignment, auth) => {
     try {
-        const response = await fetch('http://localhost:3000/assignments', {
+        const response = await fetch(`${API_URL}/assignments`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${auth.token}`

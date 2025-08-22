@@ -45,7 +45,7 @@ const Purchases = () => {
     const fetchData = async () => {
       const bases = await getBases(auth);
       setBases(bases);
-      const assetTypes = await getEquipmentTypes();
+      const assetTypes = await getEquipmentTypes(auth);
       setAssetTypes(assetTypes);
     };
 

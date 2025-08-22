@@ -120,6 +120,14 @@ router.get('/bases', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req
 })
 );
 
+router.get('/roles', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
+    const response = await Client.query(
+        `SELECT * FROM roles`
+    );
+    res.json(response.rows);
+})
+);
+
 router.get('/equipment-types', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
     const response = await Client.query(
         `SELECT ARRAY_AGG(DISTINCT asset_type) AS asset_types FROM assets`

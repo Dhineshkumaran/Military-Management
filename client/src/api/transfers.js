@@ -1,6 +1,8 @@
+import API_URL from '../config.js';
+
 const getTransfers = async(filters, auth) => {
     try {
-        const response = await fetch('http://localhost:3000/transfers/history', {
+        const response = await fetch(`${API_URL}/transfers/history`, {
             headers: {
                 'Authorization': `Bearer ${auth.token}`
             }
@@ -15,7 +17,7 @@ const getTransfers = async(filters, auth) => {
 
 const createTransfer = async (transferData, auth) => {
     try {
-        const response = await fetch('http://localhost:3000/transfers', {
+        const response = await fetch(`${API_URL}/transfers`, {
             method: 'POST',
             body: JSON.stringify(transferData),
             headers: {
