@@ -47,7 +47,9 @@ async function query(arg){
     console.log(res.rows[0]);
 }
 
-app.listen(3000, 'localhost', ()=>{
+const port = process.env.PORT || 3000;
+
+app.listen(port, 'localhost', ()=>{
     query('SELECT NOW()');
-    console.log("Server is listening on port 3000");
+    console.log(`Server is listening on port ${port}`);
 })
