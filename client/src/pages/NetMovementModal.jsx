@@ -6,6 +6,7 @@ import {
   ShoppingCart
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import BASE_URL from '../config.js';
 
 const NetMovementModal = ({ isOpen, onClose, startDate, endDate, baseId, assetType }) => {
 
@@ -19,7 +20,7 @@ const NetMovementModal = ({ isOpen, onClose, startDate, endDate, baseId, assetTy
       try {
         // console.log(`http://localhost:3000/purchases?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`);
 
-        const response = await fetch(`http://localhost:3000/purchases?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`, {
+        const response = await fetch(`${BASE_URL}/purchases?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`, {
           headers: {
             Authorization: `Bearer ${auth.token}`
           }
@@ -32,7 +33,7 @@ const NetMovementModal = ({ isOpen, onClose, startDate, endDate, baseId, assetTy
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/transfers-in?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`, {
+        const response = await fetch(`${BASE_URL}/transfers-in?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`, {
           headers: {
             Authorization: `Bearer ${auth.token}`
           }
@@ -45,7 +46,7 @@ const NetMovementModal = ({ isOpen, onClose, startDate, endDate, baseId, assetTy
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/transfers-out?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`, {
+        const response = await fetch(`${BASE_URL}/transfers-out?start_date=${startDate}&end_date=${endDate}&base_id=${baseId}&asset_type=${assetType}`, {
           headers: {
             Authorization: `Bearer ${auth.token}`
           }

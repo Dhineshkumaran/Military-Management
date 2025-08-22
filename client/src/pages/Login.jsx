@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Shield, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
+import BASE_URL from '../config.js';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const Login = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      const result = await fetch('http://localhost:3000/api/login', {
+      const result = await fetch(`${BASE_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
