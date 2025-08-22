@@ -7,13 +7,15 @@ import Client from '../config/connection.js';
 
 const verifyToken = asyncErrorHandler(async(req, res, next) => {
     let token = req.get("Authorization");
+    
     if(!token){
         const error = new CustomError("Token not found", 401);
         return next(error);
     }
     if (token.startsWith("Bearer ")) {
-        token = token.slice(7);
+        token = token.split(" ")[1];
     }
+    
     let decodedToken;
     try {
         decodedToken = jwt.verify(token, process.env.JWT_SECRET);

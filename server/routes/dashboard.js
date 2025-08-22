@@ -112,7 +112,7 @@ router.get('/recent-transfers', verifyToken, authorizeRoles(1), asyncErrorHandle
 })
 );
 
-router.get('/bases', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
+router.get('/bases', verifyToken, authorizeRoles(1, 2, 3), asyncErrorHandler(async(req, res, next) => {
     const response = await Client.query(
         `SELECT * FROM bases`
     );
@@ -120,7 +120,7 @@ router.get('/bases', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req
 })
 );
 
-router.get('/roles', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
+router.get('/roles', verifyToken, authorizeRoles(1, 2, 3), asyncErrorHandler(async(req, res, next) => {
     const response = await Client.query(
         `SELECT * FROM roles`
     );
@@ -128,7 +128,7 @@ router.get('/roles', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req
 })
 );
 
-router.get('/equipment-types', verifyToken, authorizeRoles(1), asyncErrorHandler(async(req, res, next) => {
+router.get('/equipment-types', verifyToken, authorizeRoles(1, 2, 3), asyncErrorHandler(async(req, res, next) => {
     const response = await Client.query(
         `SELECT ARRAY_AGG(DISTINCT asset_type) AS asset_types FROM assets`
     );

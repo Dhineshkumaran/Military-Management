@@ -157,7 +157,7 @@ const Purchases = () => {
           <h1 className="text-3xl font-bold text-gray-800">Purchases</h1>
           <p className="text-gray-600">Manage asset purchases and procurement</p>
         </div>
-        <div className="mt-4 sm:mt-0">
+        <div className={`mt-4 sm:mt-0  ${auth.user.role_id == 3 ? 'hidden':''}`}>
           <button 
             onClick={() => setShowForm(!showForm)}
             className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:shadow-md transform hover:scale-[1.02] transition-all duration-300 flex items-center"
@@ -193,7 +193,7 @@ const Purchases = () => {
         </div>
       )}
 
-      {showForm && (
+      {auth.user.role_id!=3 && showForm && (
         <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Record New Purchase</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
