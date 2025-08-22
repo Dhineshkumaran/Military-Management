@@ -38,7 +38,7 @@ const Login = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      const result = await fetch(`${BASE_URL}/api/login`, {
+      const result = await fetch(`${BASE_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
