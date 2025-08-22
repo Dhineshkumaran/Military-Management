@@ -21,15 +21,6 @@ const Logs = () => {
     return new Date(timestamp).toLocaleString();
   };
 
-  const getRoleName = (roleId) => {
-    const roles = {
-      1: 'Admin',
-      2: 'Base Commander',
-      3: 'Logistics Officer'
-    };
-    return roles[roleId] || `Role ${roleId}`;
-  };
-
   return (
     <div className="bg-white shadow rounded-lg">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -58,15 +49,8 @@ const Logs = () => {
                     </span>
                   </div>
                   
-                  <div className="text-sm text-gray-900 mb-2">
-                    <User className="w-4 h-4 inline mr-1" />
-                    Created user: <strong>{log.details.username}</strong>
-                  </div>
-                  
                   <div className="text-sm text-gray-600 space-y-1">
-                    <div>Role: {getRoleName(log.details.role_id)}</div>
-                    <div>Base ID: {log.details.base_id}</div>
-                    <div>User ID: {log.details.user_id}</div>
+                    <div>{log.details}</div>
                   </div>
                 </div>
                 
